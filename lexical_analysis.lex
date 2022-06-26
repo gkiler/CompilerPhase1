@@ -10,7 +10,7 @@ extern FILE *yyin, *yyout;
 letter = [a-zA-Z]
 digit = [0-9]
 identifier = letter(letter|digit|_)*(letter|digit)*
-number = digit+
+
 %%
    /* specific lexer rules in regex */
 "function"      {fprintf(yyout, "FUNCTION\n");}
@@ -49,20 +49,20 @@ number = digit+
 "%"             {fprintf(yyout, "MOD\n");}
 "=="            {fprintf(yyout, "EQ\n");}
 "<>"            {fprintf(yyout, "NEQ\n");}
-[<^>]           {fprintf(yyout, "LT\n");}
-[>^<]           {fprintf(yyout, "GT\n");}
+(<^>)           {fprintf(yyout, "LT\n");}
+(>^<)           {fprintf(yyout, "GT\n");}
 "<="            {fprintf(yyout, "LTE\n");}
 ">="            {fprintf(yyout, "GTE\n");}
 ";"             {fprintf(yyout, "SEMICOLON\n");}
-[:^=]           {fprintf(yyout, "COLON\n");}
+(:^=)           {fprintf(yyout, "COLON\n");}
 ","             {fprintf(yyout, "COMMA\n");}
 "("             {fprintf(yyout, "L_PAREN\n");}
 ")"             {fprintf(yyout, "R_PAREN\n");}
 "["             {fprintf(yyout, "L_SQUARE_BRACKET\n");}
 "]"             {fprintf(yyout, "R_SQUARE_BRACKET\n");}
 ":="            {fprintf(yyout, "ASSIGN\n");}
-number          {fprintf(yyout, "NUMBER %s\n", yytext);}
-identifier      {fprintf(yyout, "IDENTIFIER %s\n", yytext);}
+([0-9]+)        {fprintf(yyout, "NUMBER %s\n", yytext);}
+([a-zA-Z]([a-zA-Z]|[0-9]|_)*([a-zA-Z|[0-9]*))    {fprintf(yyout, "IDENTIFIER %s\n", yytext);}
 .               ;
 
 %%
