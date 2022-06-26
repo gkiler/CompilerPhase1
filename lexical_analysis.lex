@@ -69,7 +69,7 @@ identifier      {fprintf(yyout, "IDENTIFIER %s\n", yytext);}
         /* C functions used in lexer */
 
 int main(int argc, char ** argv)
-{\
+{
 
     yyin = fopen(argv[1], "r"); //input file to read
     yyout = fopen(argv[2], "w"); //output file to write
