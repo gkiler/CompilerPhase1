@@ -4,6 +4,7 @@
    /* write your C code here for definitions of variables and including headers */
    //fprintf(yyout, "text", str)
    extern FILE *yyin, *yyout;
+   
 %}
 
    /* some common rules */
