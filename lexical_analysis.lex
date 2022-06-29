@@ -8,9 +8,9 @@ extern FILE *yyin, *yyout;
 %}
 
    /* some common rules */
-letter = [a-zA-Z]
-digit = [0-9]
-identifier = letter(letter|digit|_)*(letter|digit)*
+LETTER          [a-zA-Z]
+DIGIT           [0-9]
+IDENTIFIER      [{LETTER}](_?[{LETTER}{NUMBER}]+)*
 
 %%
 
@@ -67,9 +67,9 @@ identifier = letter(letter|digit|_)*(letter|digit)*
 
 [##].* {currLine++; currPos = 1;}
 
-([a-zA-Z]([a-zA-Z]|[0-9]|_)*([a-zA-Z]|[0-9]*))    {fprintf(yyout, "IDENTIFIER %s\n", yytext); currPos += yyleng;}
+([a-zA-Z](_?([a-zA-Z0-9])+)*)    {fprintf(yyout, "IDENTIFIER %s\n", yytext); currPos += yyleng;}
 
-[0-9_][a-zA-Z0-9_]*[a-zA-Z0-9_] {printf("There is an error on line %d, at column %d: the identifier \"%s\" it must begin with a letter\n", currPos, currLine, yytext); exit(0);}
+[0-9_][a-zA-Z0-9_]*[a-zA-Z0-9_]  {printf("There is an error on line %d, at column %d: the identifier \"%s\" it must begin with a letter\n", currPos, currLine, yytext); exit(0);}
 [a-zA-Z0-9_]*[_] {printf("There is an error on line %d, at column %d: the identifier \"%s\" it cannot end with an underscore\n", currPos, currLine, yytext); exit(0);}
 
 [ ] {currPos += yyleng;}
@@ -90,9 +90,9 @@ int main(int argc, char ** argv)
         printf("Read/Write error\n");
         return -1;
     }
-    yylex();
+ yylex();
 
-    
+
 
     fclose(yyin);
     fclose(yyout);
@@ -100,3 +100,4 @@ int main(int argc, char ** argv)
     return 0;
 
 }
+   
