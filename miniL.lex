@@ -1,6 +1,6 @@
    /* cs152-miniL phase1 */
 %{
-   int currLine = 0, currPos = 0;
+   int currLine = 1, currPos = 1;
    /* write your C code here for definitions of variables and including headers */
    //fprintf(yyout, "text", str)
 extern FILE *yyin, *yyout;
@@ -69,8 +69,8 @@ IDENTIFIER      [{LETTER}](_?[{LETTER}{NUMBER}]+)*
 
 ([a-zA-Z](_?([a-zA-Z0-9])+)*)    {fprintf(yyout, "IDENTIFIER %s\n", yytext); currPos += yyleng;}
 
-[0-9_][a-zA-Z0-9_]*[a-zA-Z0-9_]  {printf("There is an error on line %d, at column %d: the identifier \"%s\" it must begin with a letter\n", currPos, currLine, yytext); exit(0);}
-[a-zA-Z0-9_]*[_] {printf("There is an error on line %d, at column %d: the identifier \"%s\" it cannot end with an underscore\n", currPos, currLine, yytext); exit(0);}
+[0-9_][a-zA-Z0-9_]*[a-zA-Z0-9_]  {printf("There is an error on line %d, at column %d: the identifier \"%s\" it must begin with a letter\n", currLine, currPos, yytext); exit(0);}
+[a-zA-Z0-9_]*[_] {printf("There is an error on line %d, at column %d: the identifier \"%s\" it cannot end with an underscore\n", currLine, currPos, yytext); exit(0);}
 
 [ ] {currPos += yyleng;}
 [\t] {currPos += yyleng;}
