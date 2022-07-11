@@ -34,7 +34,7 @@ functions:              { printf("functions -> epsilon\n")}
         |   function functions {printf("functions -> function functions\n");}
         ;
 
-function:        FUNCTION identifier SEMICOLON BEGINPARAMS declarations ENDPARAMS BEGINLOCALS declarations ENDLOCALS BEGINBODY statements ENDBODY {printf("function -> FUNCTION identifier SEMICOLON BEGINPARAMS declarations ENDPARAMS BEGINLOCALS declarations ENDLOCALS BEGINBODY statements ENDBODY\n")}
+function:        FUNCTION IDENTIFIER SEMICOLON BEGINPARAMS declarations ENDPARAMS BEGINLOCALS declarations ENDLOCALS BEGINBODY statements ENDBODY {printf("function -> FUNCTION IDENTIFIER SEMICOLON BEGINPARAMS declarations ENDPARAMS BEGINLOCALS declarations ENDLOCALS BEGINBODY statements ENDBODY\n")}
         ;
 
 declarations:       declaration SEMICOLON declarations {printf("declarations -> declaration SEMICOLON declarations\n")}
@@ -152,15 +152,15 @@ term1:              var {printf("term1 -> var\n")}
         |           L_PAREN expression R_PAREN {printf("term1 -> L_PAREN expression R_PAREN\n")}
         ;
 
-term2:              identifier L_PAREN expressions R_PAREN {printf("term2 -> identifier L_PAREN expressions R_PAREN\n")}
+term2:              IDENTIFIER L_PAREN expressions R_PAREN {printf("term2 -> IDENTIFIER L_PAREN expressions R_PAREN\n")}
         ;
 
 expressions:        expression COMMA expressions {printf("expressions -> expression COMMA expressions\n")}
         |           expression {printf("expressions -> expression\n")}
         ;
 
-var:                identifier {printf("var -> identifier\n")}
-        |           identifier L_BRACKET expression R_BRACKET {printf("var -> identifier L_BRACKET expression R_BRACKET\n")}
+var:                IDENTIFIER {printf("var -> IDENTIFIER\n")}
+        |           IDENTIFIER L_BRACKET expression R_BRACKET {printf("var -> IDENTIFIER L_BRACKET expression R_BRACKET\n")}
         ;
 
 
