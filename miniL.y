@@ -57,14 +57,14 @@ identifiers:        IDENTIFIER COMMA identifiers {printf("identifiers -> IDENTIF
         |           IDENTIFIER {printf("identifiers -> IDENTIFIER\n")}
         ;
 
-statements:         stateVar {printf("statements -> stateVar\n")}
-        |           stateIf {printf("statements -> StateIf\n")}
-        |           stateWhile {printf("statements -> stateWhile\n")}
-        |           stateDo {printf("statements -> stateDo\n")}
-        |           stateRead {printf("statements -> stateRead\n")}
-        |           stateWrite {printf("statements -> stateWrite\n")}
-        |           stateContinue {printf("statements -> stateContinue\n")}
-        |           stateReturn {printf("statements -> stateReturn\n")}
+statement:         stateVar {printf("statement -> stateVar\n")}
+        |           stateIf {printf("statement -> StateIf\n")}
+        |           stateWhile {printf("statement -> stateWhile\n")}
+        |           stateDo {printf("statement -> stateDo\n")}
+        |           stateRead {printf("statement -> stateRead\n")}
+        |           stateWrite {printf("statement -> stateWrite\n")}
+        |           stateContinue {printf("statement -> stateContinue\n")}
+        |           stateReturn {printf("statement -> stateReturn\n")}
         ;
 
 stateVar:           var ASSIGNMENT expression {printf("stateVar -> var ASSIGNMENT expression\n")}
