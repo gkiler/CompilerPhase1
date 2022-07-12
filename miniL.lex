@@ -1,84 +1,193 @@
-   /* cs152-miniL phase1 */
 %{
-   #include "y.tab.h"
-   int currLine = 1, currPos = 1;
-   /* write your C code here for definitions of variables and including headers */
-   //fprintf(yyout, "text", str)
+    #include <stdio.h>
+    #include <stdlib.h>
+    void yyerror(const char *msg);
+    extern int currLine;
+    extern int currPos;
+    FILE *yyin;
+    void yyerror(const char *msg){
+        printf("Error: On line %d, column %d: %s \n", currLine, currPos, msg);
+}
 
-extern FILE *yyin, *yyout;
-
-#include <stdio.h>
 
 %}
 
-   /* some common rules */
-LETTER          [a-zA-Z]
-DIGIT           [0-9]
-IDENTIFIER      [{LETTER}](_?[{LETTER}{NUMBER}]+)*
+%union{
+ int num_val;
+ char* id_val;
+}
+%error-verbose
+%locations
+%start prog_start
+%token ASSIGN FOR COLON OR AND NOT LT LTE GT GTE EQ NEQ PLUS MINUS MULT DIV MOD UMINUS L_SQUARE_BRACKET R_SQUARE_BRACKET L_PAREN R_PAREN SEMICOLON COMMA
+%token IDENTIFIER BEGINPARAMS ENDPARAMS FUNCTION ENDLOCALS BEGINLOCALS BEGINBODY ENDBODY ENUM ARRAY OF INTEGER THEN ELSE IF ENDIF
+%token DO BEGINLOOP ENDLOOP WHILE READ WRITE CONTINUE RETURN TRUETOKEN FALSETOKEN F_SLASH B_SLASH
+%token <id_val> IDENT
+%token <num_val> NUMBER
+%right ASSIGN
+%left OR
+%left AND
+%right NOT
+%left LT LTE GT GTE EQ NEQ
+%left PLUS MINUS
+%left MULT DIV MOD
+%right UMINUS
+%left L_BRACKET R_BRACKET
+%left L_PAREN R_PAREN
 
 %%
 
-   /* specific lexer rules in regex */
-function           {currPos += yyleng; return FUNCTION;}
-beginparams     {currPos += yyleng; return BEGINPARAMS;}
-endparams          {currPos += yyleng; return ENDPARAMS;}
-beginlocals     {currPos += yyleng; return BEGINLOCALS;}
-endlocals       {currPos += yyleng; return ENDLOCALS;}
-beginbody          {currPos += yyleng; return BEGINBODY;}
-endbody               {currPos += yyleng; return ENDBODY;}
-integer               {currPos += yyleng; return INTEGER;}
-array              {currPos += yyleng; return ARRAY;}
-of                    {currPos += yyleng; return OF;}
-if                    {currPos += yyleng; return IF;}
-then                  {currPos += yyleng; return THEN;}
-endif              {currPos += yyleng; return ENDIF;}
-else                  {currPos += yyleng; return ELSE;}
-while           {currPos += yyleng; return WHILE;}
-do                    {currPos += yyleng; return DO;}
-for                   {currPos += yyleng; return FOR;}
-beginloop       {currPos += yyleng; return BEGINLOOP;}
-endloop               {currPos += yyleng; return ENDLOOP;}
-continue           {currPos += yyleng; return CONTINUE;}
-read                  {currPos += yyleng; return READ;}
-write              {currPos += yyleng; return WRITE;}
-and                   {currPos += yyleng; return AND;}
-or                    {currPos += yyleng; return OR;}
-not                   {currPos += yyleng; return NOT;}
-true                  {currPos += yyleng; return TRUETOKEN;}
-false              {currPos += yyleng; return FALSETOKEN;}
-return             {currPos += yyleng; return RETURN;}
+prog_start: functions   { printf("prog_start -> functions\n");  }
+                        | error {yyerrok; yyclearin;}
+        ;
 
-"-"              {currPos += yyleng; return MINUS;}
-"+"              {currPos += yyleng; return PLUS;}
-"*"              {currPos += yyleng; return MULT;}
-"/"              {currPos += yyleng; return DIV;}
-"("             {currPos += yyleng; return L_PAREN;}
-")"              {currPos += yyleng; return R_PAREN;}
-":="             {currPos += yyleng; return ASSIGN;}
-":"             {currPos += yyleng; return COLON;}
-";"             {currPos += yyleng; return SEMICOLON;}
-"["             {currPos += yyleng; return L_SQUARE_BRACKET;}
-"]"             {currPos += yyleng; return R_SQUARE_BRACKET;}
-","             {currPos += yyleng; return COMMA;}
-"<"              {currPos += yyleng; return LT;}
-"<="             {currPos += yyleng; return LTE;}
-">"             {currPos += yyleng; return GT;}
-">="             {currPos += yyleng; return GTE;}
-"=="             {currPos += yyleng; return EQ;}
-"<>"             {currPos += yyleng; return NEQ;}
-"%"             {currPos += yyleng; return MOD;}
-([0-9]+)        {fprintf(yyout, "NUMBER %s\n", yytext); currPos += yyleng;}
+functions:              { printf("functions -> epsilon\n");}
+        |   function functions {printf("functions -> function functions\n");}
+        ;
 
-[##].* {currLine++; currPos = 1;}
+function:        FUNCTION IDENTIFIER SEMICOLON BEGINPARAMS declarations ENDPARAMS BEGINLOCALS declarations ENDLOCALS BEGINBODY statements ENDBODY {printf("function -> FUNCTION IDENTIFIER SEMICOLON BEGINPARAMS declarations ENDPARAMS BEGINLOCALS declarations ENDLOCALS BEGINBODY statements ENDBODY\n");}
+        ;
 
-([a-zA-Z](_?([a-zA-Z0-9])+)*)    {fprintf(yyout, "IDENTIFIER %s\n", yytext); currPos += yyleng;}
+declarations:       declaration SEMICOLON declarations {printf("declarations -> declaration SEMICOLON declarations\n");}
+        |           {printf("declarations -> epsilon\n");}
+        |           declaration error {yyerrok;}
 
-[0-9_][a-zA-Z0-9_]*[a-zA-Z0-9_]  {printf("There is an error on line %d, at column %d: the identifier \"%s\" it must begin with a letter\n", currLine, currPos, yytext); exit(0);}
-[a-zA-Z0-9_]*[_] {printf("There is an error on line %d, at column %d: the identifier \"%s\" it cannot end with an underscore\n", currLine, currPos, yytext); exit(0);}
+        ;
 
-[ ] {currPos += yyleng;}
-[\t] {currPos += yyleng;}
-"\n" {currLine++; currPos = 1;}
-. {printf("There is an error on line %d. At column %d: unrecognized symbol \"%s\"\n", currLine, currPos, yytext); exit(0);}
+statements:         statement SEMICOLON statements {printf("statements -> statement SEMICOLON statements\n");}
+        |           {printf("statements -> epsilon\n");}
+        |           statement error {yyerrok;}
+        ;
+
+declaration:        identifiers COLON  declaration2 {printf("declaration -> identifiers COLON declarations2\n");}
+        ;
+
+declaration2:       ARRAY L_BRACKET NUMBER R_BRACKET OF INTEGER {printf("declaration2 -> ARRAY L_BRACKET NUMBER R_BRACKET OF INTEGER\n");}
+        |           ENUM L_PAREN identifiers R_PAREN {printf("declaration2 -> ENUM L_PAREN identifiers R_PAREN\n");}
+        |           INTEGER {printf("declaration2 -> INTEGER\n");}
+        ;
+        
+        
+identifiers:        IDENTIFIER COMMA identifiers {printf("identifiers -> IDENTIFIER COMMA identifiers\n");}
+        |           IDENTIFIER {printf("identifiers -> IDENTIFIER\n");}
+        ;
+
+statement:         stateVar {printf("statement -> stateVar\n");}
+        |           stateIf {printf("statement -> StateIf\n");}
+        |           stateWhile {printf("statement -> stateWhile\n");}
+        |           stateDo {printf("statement -> stateDo\n");}
+        |           stateRead {printf("statement -> stateRead\n");}
+        |           stateWrite {printf("statement -> stateWrite\n");}
+        |           stateContinue {printf("statement -> stateContinue\n");}
+        |           stateReturn {printf("statement -> stateReturn\n");}
+        ;
+
+stateVar:           var ASSIGN expression {printf("stateVar -> var ASSIGNMENT expression\n");}
+        ;
+
+stateIf:            IF boolexpr THEN statements stateElse ENDIF {printf("stateIf -> IF boolexpr THEN statements stateElse ENDIF\n");}
+        ;
+
+stateElse:          ELSE statements {printf("stateElse -> ELSE statements\n");}
+        |           {printf("stateElse -> epsilon\n");}
+        ;
+
+stateWhile:         WHILE boolexpr BEGINLOOP statements ENDLOOP {printf("stateWhile -> WHILE boolexpr BEGINLOOP statements ENDLOOP\n");}
+        ;
+
+stateDo:            DO BEGINLOOP statements ENDLOOP WHILE boolexpr {printf("stateDo -> DO BEGINLOOP statements ENDLOOP WHILE boolexpr\n");}
+        ;
+
+stateRead:          READ vars {printf("stateRead -> READ vars\n");}
+        ;
+
+vars:               var COMMA vars {printf("vars -> var COMMA vars\n");}
+        |           var {printf("vars -> var\n");}
+        ;
+
+stateWrite:         WRITE vars {printf("stateWrite -> WRITE vars\n");}
+        ;
+
+stateContinue:      CONTINUE {printf("stateContinue -> CONTINUE\n");}
+        ;
+
+stateReturn:        RETURN expression {printf("stateReturn -> RETURN expression\n");}
+        ;
+
+boolexpr:           boolexpr OR relationAndExpr {printf("boolexpr -> relationAndExpr OR boolexpr\n");}
+        |           relationAndExpr {printf("boolexpr -> relationAndExpr\n");}
+        ;
+
+relationAndExpr:    relationExpr AND relationAndExpr {printf("relationAndExpr -> relationAnd\n");}
+        |           relationExpr {printf("relationAndExpr -> relationExpr\n");}
+        ;
+
+relationExpr:       NOT relationExpr2 {printf("relationExpr -> relationExpr2\n");}
+        |           relationExpr2 {printf("relationExpr -> relationExpr2\n");}
+        ;
+
+relationExpr2:      relationExpression {printf("relationExpr2 -> relationExpression\n");}
+        |           TRUETOKEN {printf("relationExpr2 -> TRUETOKEN\n");}
+        |           FALSETOKEN {printf("relationExpr2 -> FALSETOKEN\n");}
+        |           relationParentheses {printf("relationExpr2 -> relationParentheses\n");}
+        ;
+
+relationExpression: expression comp expression {printf("relationExpression -> expression comp expression\n");}
+        ;
+relationParentheses: L_PAREN boolexpr R_PAREN {printf("relationParentheses -> L_PAREN boolexpr R_PAREN\n");}
+        ;
+
+comp:               EQ {printf("comp -> EQ\n");}
+        |           NEQ {printf("comp -> NEQ\n");}
+        |           LT {printf("comp -> LT\n");}
+        |           GT {printf("comp -> GT\n");}
+        |           LTE {printf("comp -> LTE\n");}
+        |           GTE {printf("comp -> GTE\n");}
+        ;
+
+expression:         multiplicativeExpr PLUS expression {printf("expression -> multiplicativeExpr PLUS expression\n");}
+        |           multiplicativeExpr MINUS expression {printf("expression -> multiplicativeExpr MINUS expression\n");}
+        |           multiplicativeExpr {printf("expression -> multiplicativeExpr\n");}
+        |           error {yyerrok;}
+        ;
+
+multiplicativeExpr: term MULT multiplicativeExpr {printf("multiplicativeExpr -> term MULT multiplicativeExpr\n");}
+        |           term F_SLASH multiplicativeExpr {printf("multiplicativeExpr -> term F_SLASH multiplicativeExpr\n");}
+        |           term MOD multiplicativeExpr {printf("multiplicativeExpr -> term MOD multiplicativeExpr\n");}
+        |           term {printf("multiplicativeExpr -> term\n");}
+        ;
+
+term:               UMINUS term1 {printf("term -> term1\n");}
+        |           term1 {printf("term -> term1\n");}
+        |           term2 {printf("term -> term2\n");}
+        ;
+
+term1:              var {printf("term1 -> var\n");}
+        |           NUMBER {printf("term1 -> NUMBER\n");}
+        |           L_PAREN expression R_PAREN {printf("term1 -> L_PAREN expression R_PAREN\n");}
+        ;
+
+term2:              IDENTIFIER L_PAREN expressions R_PAREN {printf("term2 -> IDENTIFIER L_PAREN expressions R_PAREN\n");}
+        ;
+
+expressions:        expression COMMA expressions {printf("expressions -> expression COMMA expressions\n");}
+        |           expression {printf("expressions -> expression\n");}
+        ;
+
+var:                IDENTIFIER {printf("var -> IDENTIFIER\n");}
+        |           IDENTIFIER L_BRACKET expression R_BRACKET {printf("var -> IDENTIFIER L_BRACKET expression R_BRACKET\n");}
+        ;
+
 
 %%
+
+int main(int argc, char **argv) {
+   if (argc > 1) {
+      yyin = fopen(argv[1], "r");
+      if (yyin == NULL){
+         printf("syntax: %s filename\n", argv[0]);
+      }//end if
+   }//end if
+   yyparse(); // Calls yylex() for tokens.
+   return 0;
+}
