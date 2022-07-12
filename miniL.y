@@ -1,7 +1,9 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
-    void yyerror(const char *msg)
+    void yyerror(const char *msg){
+	printf("Error: On line %d, column %d: %s \n", currLine, currPos, msg);
+}
     extern int currLine;
     extern int currPos;
     FILE * yyin;
@@ -27,7 +29,9 @@
 %left L_PAREN R_PAREN
 
 %%
+
 prog_start: functions   { printf("prog_start -> functions\n");  }
+                        | error {yyerrok; yyclearin;}
         ;
 
 functions:              { printf("functions -> epsilon\n")}
@@ -39,10 +43,13 @@ function:        FUNCTION IDENTIFIER SEMICOLON BEGINPARAMS declarations ENDPARAM
 
 declarations:       declaration SEMICOLON declarations {printf("declarations -> declaration SEMICOLON declarations\n")}
         |           {printf("declarations -> epsilon\n")}
+        |           declaration error {yyerrok;}
+		
         ;
 
 statements:         statement SEMICOLON statements {printf("statements -> statement SEMICOLON statements\n")}
         |           {printf("statements -> epsilon\n")}
+        |           statement error {yyerrok;}
         ;
 
 declaration:        identifiers COLON  declaration2 {printf("declaration -> identifiers COLON declarations2\n")}
@@ -57,14 +64,14 @@ identifiers:        IDENTIFIER COMMA identifiers {printf("identifiers -> IDENTIF
         |           IDENTIFIER {printf("identifiers -> IDENTIFIER\n")}
         ;
 
-statements:         stateVar {printf("statements -> stateVar\n")}
-        |           stateIf {printf("statements -> StateIf\n")}
-        |           stateWhile {printf("statements -> stateWhile\n")}
-        |           stateDo {printf("statements -> stateDo\n")}
-        |           stateRead {printf("statements -> stateRead\n")}
-        |           stateWrite {printf("statements -> stateWrite\n")}
-        |           stateContinue {printf("statements -> stateContinue\n")}
-        |           stateReturn {printf("statements -> stateReturn\n")}
+statement:         stateVar {printf("statement -> stateVar\n")}
+        |           stateIf {printf("statement -> StateIf\n")}
+        |           stateWhile {printf("statement -> stateWhile\n")}
+        |           stateDo {printf("statement -> stateDo\n")}
+        |           stateRead {printf("statement -> stateRead\n")}
+        |           stateWrite {printf("statement -> stateWrite\n")}
+        |           stateContinue {printf("statement -> stateContinue\n")}
+        |           stateReturn {printf("statement -> stateReturn\n")}
         ;
 
 stateVar:           var ASSIGNMENT expression {printf("stateVar -> var ASSIGNMENT expression\n")}
@@ -112,8 +119,8 @@ relationExpr:       NOT relationExpr2 {printf("relationExpr -> relationExpr2\n")
         ;
 
 relationExpr2:      relationExpression {printf("relationExpr2 -> relationExpression\n")}
-        |           TOKENTRUE {printf("relationExpr2 -> TOKENTRUE\n")}
-        |           TOKENFALSE {printf("relationExpr2 -> TOKENFALSE\n")}
+        |           TRUETOKEN {printf("relationExpr2 -> TRUETOKEN\n")}
+        |           FALSETOKEN {printf("relationExpr2 -> FALSETOKEN\n")}
         |           relationParentheses {printf("relationExpr2 -> relationParentheses\n")}
         ;
 
@@ -134,6 +141,7 @@ comp:               EQ {printf("comp -> EQ\n")}
 expression:         multiplicativeExpr PLUS expression {printf("expression -> multiplicativeExpr PLUS expression\n")}
         |           multiplicativeExpr MINUS expression {printf("expression -> multiplicativeExpr MINUS expression\n")}
         |           multiplicativeExpr {printf("expression -> multiplicativeExpr\n")}
+        |           error {yyerrok;}
         ;
 
 multiplicativeExpr: term MULT multiplicativeExpr {printf("multiplicativeExpr -> term MULT multiplicativeExpr\n")}
