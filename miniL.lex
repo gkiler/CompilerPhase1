@@ -67,11 +67,13 @@ return             {currPos += yyleng; return RETURN;}
 "=="             {currPos += yyleng; return EQ;}
 "<>"             {currPos += yyleng; return NEQ;}
 "%"             {currPos += yyleng; return MOD;}
-([0-9]+)        {fprintf(yyout, "NUMBER %s\n", yytext); currPos += yyleng;}
+[0-9]+ {currPos += yyleng; yylval.num_val = atoi(yytext); return NUMBER;}
+
 
 [##].* {currLine++; currPos = 1;}
 
-([a-zA-Z](_?([a-zA-Z0-9])+)*)    {fprintf(yyout, "IDENTIFIER %s\n", yytext); currPos += yyleng;}
+[a-zA-Z0-9_][a-zA-Z0-9] {currPos += yyleng; yylval.id_val = yytext; return IDENTIFIER;}
+
 
 [0-9_][a-zA-Z0-9_]*[a-zA-Z0-9_]  {printf("There is an error on line %d, at column %d: the identifier \"%s\" it must begin with a letter\n", currLine, currPos, yytext); exit(0);}
 [a-zA-Z0-9_]*[_] {printf("There is an error on line %d, at column %d: the identifier \"%s\" it cannot end with an underscore\n", currLine, currPos, yytext); exit(0);}
