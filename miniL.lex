@@ -1,5 +1,6 @@
    /* cs152-miniL phase1 */
 %{
+   #include <stdio.h>
    #include "y.tab.h"
    int currLine = 1, currPos = 1;
    /* write your C code here for definitions of variables and including headers */
@@ -7,7 +8,6 @@
 
 extern FILE *yyin, *yyout;
 
-#include <stdio.h>
 
 %}
 
@@ -72,15 +72,12 @@ return             {currPos += yyleng; return RETURN;}
 
 [##].* {currLine++; currPos = 1;}
 
-[a-zA-Z0-9_][a-zA-Z0-9] {currPos += yyleng; yylval.id_val = yytext; return IDENTIFIER;}
+[a-zA-Z0-9_]*[a-zA-Z0-9]* {currPos += yyleng; yylval.id_val = yytext; return IDENTIFIER;}
 
 
-[0-9_][a-zA-Z0-9_]*[a-zA-Z0-9_]  {printf("There is an error on line %d, at column %d: the identifier \"%s\" it must begin with a letter\n", currLine, currPos, yytext); exit(0);}
-[a-zA-Z0-9_]*[_] {printf("There is an error on line %d, at column %d: the identifier \"%s\" it cannot end with an underscore\n", currLine, currPos, yytext); exit(0);}
 
 [ ] {currPos += yyleng;}
 [\t] {currPos += yyleng;}
 "\n" {currLine++; currPos = 1;}
-. {printf("There is an error on line %d. At column %d: unrecognized symbol \"%s\"\n", currLine, currPos, yytext); exit(0);}
 
-%%
+%
