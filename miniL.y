@@ -5,9 +5,6 @@
     extern int currLine;
     extern int currPos;
     FILE *yyin;
-    void yyerror(const char *msg){
-        printf("Error: On line %d, column %d: %s \n", currLine, currPos, msg);
-}
 
 
 %}
@@ -20,9 +17,9 @@
 %locations
 %start prog_start
 %token ASSIGN FOR COLON OR AND NOT LT LTE GT GTE EQ NEQ PLUS MINUS MULT DIV MOD UMINUS L_SQUARE_BRACKET R_SQUARE_BRACKET L_PAREN R_PAREN SEMICOLON COMMA
-%token IDENTIFIER BEGINPARAMS ENDPARAMS FUNCTION ENDLOCALS BEGINLOCALS BEGINBODY ENDBODY ENUM ARRAY OF INTEGER THEN ELSE IF ENDIF
+%token BEGINPARAMS ENDPARAMS FUNCTION ENDLOCALS BEGINLOCALS BEGINBODY ENDBODY ENUM ARRAY OF INTEGER THEN ELSE IF ENDIF
 %token DO BEGINLOOP ENDLOOP WHILE READ WRITE CONTINUE RETURN TRUETOKEN FALSETOKEN F_SLASH B_SLASH
-%token <id_val> IDENT
+%token <id_val> IDENTIFIER
 %token <num_val> NUMBER
 %right ASSIGN
 %left OR
@@ -32,7 +29,7 @@
 %left PLUS MINUS
 %left MULT DIV MOD
 %right UMINUS
-%left L_BRACKET R_BRACKET
+%left L_SQUARE_BRACKET R_SQUARE_BRACKET
 %left L_PAREN R_PAREN
 
 %%
@@ -62,12 +59,11 @@ statements:         statement SEMICOLON statements {printf("statements -> statem
 declaration:        identifiers COLON  declaration2 {printf("declaration -> identifiers COLON declarations2\n");}
         ;
 
-declaration2:       ARRAY L_BRACKET NUMBER R_BRACKET OF INTEGER {printf("declaration2 -> ARRAY L_BRACKET NUMBER R_BRACKET OF INTEGER\n");}
+declaration2:       ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER {printf("declaration2 -> ARRAY L_BRACKET NUMBER R_BRACKET OF INTEGER\n");}
         |           ENUM L_PAREN identifiers R_PAREN {printf("declaration2 -> ENUM L_PAREN identifiers R_PAREN\n");}
         |           INTEGER {printf("declaration2 -> INTEGER\n");}
         ;
-        
-        
+
 identifiers:        IDENTIFIER COMMA identifiers {printf("identifiers -> IDENTIFIER COMMA identifiers\n");}
         |           IDENTIFIER {printf("identifiers -> IDENTIFIER\n");}
         ;
@@ -84,7 +80,6 @@ statement:         stateVar {printf("statement -> stateVar\n");}
 
 stateVar:           var ASSIGN expression {printf("stateVar -> var ASSIGNMENT expression\n");}
         ;
-
 stateIf:            IF boolexpr THEN statements stateElse ENDIF {printf("stateIf -> IF boolexpr THEN statements stateElse ENDIF\n");}
         ;
 
@@ -134,6 +129,7 @@ relationExpr2:      relationExpression {printf("relationExpr2 -> relationExpress
 
 relationExpression: expression comp expression {printf("relationExpression -> expression comp expression\n");}
         ;
+
 relationParentheses: L_PAREN boolexpr R_PAREN {printf("relationParentheses -> L_PAREN boolexpr R_PAREN\n");}
         ;
 
@@ -175,7 +171,7 @@ expressions:        expression COMMA expressions {printf("expressions -> express
         ;
 
 var:                IDENTIFIER {printf("var -> IDENTIFIER\n");}
-        |           IDENTIFIER L_BRACKET expression R_BRACKET {printf("var -> IDENTIFIER L_BRACKET expression R_BRACKET\n");}
+        |           IDENTIFIER L_SQUARE_BRACKET expression R_SQUARE_BRACKET {printf("var -> IDENTIFIER L_BRACKET expression R_BRACKET\n");}
         ;
 
 
@@ -191,3 +187,9 @@ int main(int argc, char **argv) {
    yyparse(); // Calls yylex() for tokens.
    return 0;
 }
+void yyerror(const char *msg){
+        printf("Error: On line %d, column %d: %s \n", currLine, currPos, msg);
+}
+
+
+
