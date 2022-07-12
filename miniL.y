@@ -112,8 +112,8 @@ relationExpr:       NOT relationExpr2 {printf("relationExpr -> relationExpr2\n")
         ;
 
 relationExpr2:      relationExpression {printf("relationExpr2 -> relationExpression\n")}
-        |           TOKENTRUE {printf("relationExpr2 -> TOKENTRUE\n")}
-        |           TOKENFALSE {printf("relationExpr2 -> TOKENFALSE\n")}
+        |           TRUETOKEN {printf("relationExpr2 -> TRUETOKEN\n")}
+        |           FALSETOKEN {printf("relationExpr2 -> FALSETOKEN\n")}
         |           relationParentheses {printf("relationExpr2 -> relationParentheses\n")}
         ;
 
