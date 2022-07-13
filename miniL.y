@@ -35,37 +35,37 @@
 %%
 
 prog_start: functions   { printf("prog_start -> functions\n");  }
-
+        |   error {yyerrok; yyclearin;}
         ;
 
 functions:              { printf("functions -> epsilon\n");}
         |   function functions {printf("functions -> function functions\n");}
         ;
 
-function:        FUNCTION identifier SEMICOLON BEGINPARAMS declarations ENDPARAMS BEGINLOCALS declarations ENDLOCALS BEGINBODY statements ENDBODY {printf("function -> FUNCTION IDENTIFIER SEMICOLON BEGINPARAMS declarations ENDPARAMS BEGINLOCALS declarations ENDLOCALS BEGINBODY statements ENDBODY\n");}
+function:        FUNCTION identifier SEMICOLON BEGINPARAMS declarations ENDPARAMS BEGINLOCALS declarations ENDLOCALS BEGINBODY statements ENDBODY {printf("function -> FUNCTION identifier SEMICOLON BEGINPARAMS declarations ENDPARAMS BEGINLOCALS declarations ENDLOCALS BEGINBODY statements ENDBODY\n");}
         ;
 
 declarations:       declaration SEMICOLON declarations {printf("declarations -> declaration SEMICOLON declarations\n");}
         |           {printf("declarations -> epsilon\n");}
-
+        |           declaration error {yyerrok;}
 
         ;
 
 statements:         statement SEMICOLON statements {printf("statements -> statement SEMICOLON statements\n");}
         |           {printf("statements -> epsilon\n");}
-
+        |           statement error {yyerrok;}
         ;
 
 declaration:        identifiers COLON  declaration2 {printf("declaration -> identifiers COLON declarations2\n");}
         ;
 
-declaration2:       ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER {printf("declaration2 -> ARRAY L_BRACKET NUMBER R_BRACKET OF INTEGER\n");}
+declaration2:       ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER {printf("declaration2 -> ARRAY L_BRACKET number R_BRACKET OF INTEGER\n");}
         |           ENUM L_PAREN identifiers R_PAREN {printf("declaration2 -> ENUM L_PAREN identifiers R_PAREN\n");}
         |           INTEGER {printf("declaration2 -> INTEGER\n");}
         ;
 
 identifiers:        identifier COMMA identifiers {printf("identifiers -> IDENTIFIER COMMA identifiers\n");}
-        |           identifier {printf("identifiers -> IDENTIFIER\n");}
+        |           identifier {printf("identifiers -> identifier\n");}
         ;
 
 statement:         stateVar {printf("statement -> stateVar\n");}
@@ -80,6 +80,7 @@ statement:         stateVar {printf("statement -> stateVar\n");}
 
 stateVar:           var ASSIGN expression {printf("stateVar -> var ASSIGNMENT expression\n");}
         ;
+
 stateIf:            IF boolexpr THEN statements stateElse ENDIF {printf("stateIf -> IF boolexpr THEN statements stateElse ENDIF\n");}
         ;
 
@@ -144,11 +145,11 @@ comp:               EQ {printf("comp -> EQ\n");}
 expression:         multiplicativeExpr PLUS expression {printf("expression -> multiplicativeExpr PLUS expression\n");}
         |           multiplicativeExpr MINUS expression {printf("expression -> multiplicativeExpr MINUS expression\n");}
         |           multiplicativeExpr {printf("expression -> multiplicativeExpr\n");}
-
+        | error {yyerrok;}
         ;
 
 multiplicativeExpr: term MULT multiplicativeExpr {printf("multiplicativeExpr -> term MULT multiplicativeExpr\n");}
-        |           term DIV multiplicativeExpr {printf("multiplicativeExpr -> term F_SLASH multiplicativeExpr\n");}
+        |           term DIV multiplicativeExpr {printf("multiplicativeExpr -> term DIV multiplicativeExpr\n");}
         |           term MOD multiplicativeExpr {printf("multiplicativeExpr -> term MOD multiplicativeExpr\n");}
         |           term {printf("multiplicativeExpr -> term\n");}
         ;
@@ -159,22 +160,25 @@ term:               UMINUS term1 {printf("term -> term1\n");}
         ;
 
 term1:              var {printf("term1 -> var\n");}
-        |           NUMBER {printf("term1 -> NUMBER\n");}
+        |           number {printf("term1 -> number\n");}
         |           L_PAREN expression R_PAREN {printf("term1 -> L_PAREN expression R_PAREN\n");}
         ;
 
-term2:              identifier L_PAREN expressions R_PAREN {printf("term2 -> IDENTIFIER L_PAREN expressions R_PAREN\n");}
+term2:              identifier L_PAREN expressions R_PAREN {printf("term2 -> identifier L_PAREN expressions R_PAREN\n");}
         ;
 
 expressions:        expression COMMA expressions {printf("expressions -> expression COMMA expressions\n");}
         |           expression {printf("expressions -> expression\n");}
         ;
 
-var:                identifier {printf("var -> IDENTIFIER\n");}
-        |           identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET {printf("var -> IDENTIFIER L_BRACKET expression R_BRACKET\n");}
+var:                identifier {printf("var -> identifier\n");}
+        |           identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET {printf("var -> identifier L_BRACKET expression R_BRACKET\n");}
         ;
 
-identifier:         IDENTIFIER {printf("identifier -> IDENTIFIER %f",$1);}
+number:             NUMBER {printf("number -> NUMBER %d", $1);}
+        ;
+
+identifier:         IDENTIFIER {printf("identifier -> IDENTIFIER %s",$1);}
         ;
 %%
 
@@ -191,4 +195,3 @@ int main(int argc, char **argv) {
 void yyerror(const char *msg){
         printf("Error: On line %d, column %d: %s \n", currLine, currPos, msg);
 }
-
