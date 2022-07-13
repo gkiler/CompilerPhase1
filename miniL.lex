@@ -80,4 +80,5 @@ return             {currPos += yyleng; return RETURN;}
 [\t] {currPos += yyleng;}
 "\n" {currLine++; currPos = 1;}
 
-%
+
+%%
