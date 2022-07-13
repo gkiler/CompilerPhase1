@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -O0 -std=c99
+CFLAGS = -g -O0
 
 miniL: miniL-lex.o miniL-parser.o
         $(CC) $^ -o $@ -lfl
