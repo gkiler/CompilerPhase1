@@ -238,7 +238,18 @@ boolexpr: boolexpr OR relationAndExpr
 
 relationAndExpr: relationExpr AND relationAndExpr
         {
-
+        std::string temp;
+        std::string dst = new_temp();
+        temp.append($1.code);
+        temp.append($3.code);
+        temp += ". " + dst + "\n";
+        temp += "&& " + dst + ", ";
+        temp.append($1.place);
+        temp.append(", ");
+        temp.append($3.place);
+        temp.append("\n");
+        $$.code strdup(temp.c_str());
+        $$.place=strdup(dst.c_str());
         }
         | relationExpr
         {
@@ -248,29 +259,51 @@ relationAndExpr: relationExpr AND relationAndExpr
 
 relationExpr: NOT relationExpr2
         {
-
+        std::string temp;
+        std::string dst = new_temp();
+        temp.append($2.code);
+        temp += ". " + dst + "\n";
+        temp += "! " + dst + ", ";
+        temp.append($2.place);
+        temp.append("\n");
+        $$.code strdup(temp.c_str());
+        $$.place=strdup(dst.c_str());
         }
         | relationExpr2
         {
-
+        $$.code=strdup($1.code);
+        $$.place strdup($1.place);   
         }
         ;
 
 relationExpr2: relationExpression
         {
-
+        std :: string dst new_temp();
+        std :: string temp;
+        temp.append($1.code);
+        temp.append($3.code);
+        temp=temp"."+dst+"\n"+$2.place+dst+", " + $1.place + ", " + $3.place
+        $$.code strdup(temp.c_str());
+        $$.place=strdup(dst.c_str());
         }
         | TRUETOKEN
         {
-
+        std::string temp;
+        temp.append("1");
+        $$.code=strdup("");
+        $$.place=strdup(temp.c_str());
         }
         | FALSETOKEN
         {
-
+        std :: string temp;
+        temp.append("0");
+        $$.code=strdup("");
+        $$.place=strdup(temp.c_str());
         }
         | relationParentheses
         {
-
+        $$.code=strdup($2.code);
+        $$.place=strdup($2.place);
         }
         ;
 
@@ -288,46 +321,90 @@ relationParentheses: L_PAREN boolexpr R_PAREN
 
 comp: EQ
         {
-
+        $$.code=strdup("");
+        $$.place=strdup("==");
         }
         | NEQ
         {
-
+        $$.code=strdup("");
+        $$.place=strdup("!=");
         }
         | LT
         {
-
+        $$.code=strdup("");
+        $$.place=strdup("<");
         }
         | GT
         {
-
+        $$.code=strdup("");
+        $$.place=strdup(">");
         }
         | LTE
         {
-
+        $$.code=strdup("");
+        $$.place=strdup("<=");
         }
         | GTE
         {
-
+        $$.code=strdup("");
+        $$.place strdup(">=");
         }
         ;
 
 expression: multiplicativeExpr PLUS expression
         {
-
+        std :: string temp;
+        std :: string dst=new_temp();
+        temp.append($1.code);
+        temp.append($3.code);
+        temp+="."+dst+"\n";
+        temp+="+"+dst+
+        temp.append($1.place);
+        temp+=11
+        temp.append($3.place);
+        temp+"\n";
+        $$.code=strdup(temp.c_str());
+        $$.place=strdup(dst.c_str());
         }
         | multiplicativeExpr MINUS expression
         {
-
+        
+        std :: string temp;
+        std :: string dst=new_temp();
+        temp.append($1.code);
+        temp.append($3.code);
+        temp += ". " + dst + "\n";
+        temp += "- " + dst + ", ";
+        temp.append($1.place);
+        temp+=", ";
+        temp.append($3.place);
+        temp+="\n";
+        $$.code=strdup(temp.c_str());
+        $$.place=strdup(dst.c_str());
         }
         | multiplicativeExpr
         {
-
+        $$.code=strdup($1.code);
+        $$.place strdup($1.place);       
         }
         ;
 
 multiplicativeExpr: term MULT multiplicativeExpr
         {
+         std::string temp
+         std::string dst = new_temp();
+         temp.append($1.code);
+         temp.append($3.code);
+         temp.append(". ");
+         temp.append(dst);
+         temp.append("\n");
+         temp += "* " + dst + ", ";
+         temp.append($1.place);
+         temp += ",";
+         temp.append($3.place);
+         temp += "\n";
+         $$.code=strdup(temp.c_str());
+         $$.place=strdup(dst.c_str());       
 
         }
         | term DIV multiplicativeExpr
@@ -380,11 +457,24 @@ term2: identifier L_PAREN expressions R_PAREN
 
 expressions: expression COMMA expressions
         {
-
+        std::string temp;
+        temp.append($1.code);
+        temp.append("param");
+        temp.append($1.place);
+        temp.append("\n");
+        temp.append($3.code);
+        $$.code=strdup(temp.c_str());$$.code
+        $$.place=strdup("");
         }
         | expression
         {
-
+        std :: string temp;
+        temp.append($1.code);
+        temp.append("param");
+        temp.append($1.place);
+        temp.append("\n");
+        $$.code = strdup(temp.c_str());
+        $$.place=strdup("");
         }
         ;
 
