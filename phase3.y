@@ -72,6 +72,343 @@ std::string new_label();
 %%
 
   /* write your rules here */
+prog_start: functions
+        {
+
+        }
+        ;
+
+functions:
+        {
+
+        }
+        | function functions
+        {
+
+        }
+        ;
+
+function: FUNCTION identifier SEMICOLON BEGINPARAMS declarations ENDPARAMS BEGINLOCALS declarations ENDLOCALS BEGINBODY statements ENDBODY
+        {
+
+        }
+        ;
+
+declaration: identifiers COLON declaration2
+        {
+
+        }
+        ;
+
+declaration2: ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER
+        {
+
+        }
+        | ENUM L_PAREN identifiers R_PAREN
+        {
+
+        }
+        | INTEGER
+        {
+
+        }
+        ;
+
+identifiers: identifier COMMA identifiers
+        {
+
+        }
+        | identifier
+        {
+
+        }
+        ;
+
+statement: stateVar
+        {
+
+        }
+        | stateIf
+        {
+
+        }
+        | stateWhile
+        {
+
+        }
+        | stateDo
+        {
+
+        }
+        | stateRead
+        {
+
+        }
+        | stateWrite
+        {
+
+        }
+        | stateContinue
+        {
+
+        }
+        | stateReturn
+        {
+
+        }
+        ;
+
+stateVar: var ASSIGN expression
+        {
+
+        }
+        ;
+
+stateIf: IF boolexpr THEN statements stateElse ENDIF
+        {
+
+        }
+        ;
+
+stateElse: ELSE statements
+        {
+
+        }
+        |
+        {
+
+        }
+        ;
+
+stateWhile: WHILE boolexpr BEGINLOOP statements ENDLOOP
+        {
+
+        }
+        ;
+
+stateDo: DO BEGINLOOP statements ENDLOOP WHILE boolexpr
+        {
+
+        }
+        ;
+
+stateRead: READ vars
+        {
+
+        }
+        ;
+
+vars: var COMMA vars
+        {
+
+        }
+        | var
+        {
+
+        }
+        ;
+
+stateWrite: WRITE vars
+        {
+
+        }
+        ;
+
+stateContinue: CONTINUE
+        {
+
+        }
+        ;
+
+stateReturn: RETURN expression
+        {
+
+        }
+        ;
+
+boolexpr: boolexpr OR relationAndExpr
+        {
+
+        }
+        | relationAndExpr
+        {
+
+        }
+        ;
+
+relationAndExpr: relationExpr AND relationAndExpr
+        {
+
+        }
+        | relationExpr
+        {
+
+        }
+        ;
+
+relationExpr: NOT relationExpr2
+        {
+
+        }
+        | relationExpr2
+        {
+
+        }
+        ;
+
+relationExpr2: relationExpression
+        {
+
+        }
+        | TRUETOKEN
+        {
+
+        }
+        | FALSETOKEN
+        {
+
+        }
+        | relationParentheses
+        {
+
+        }
+        ;
+
+relationExpression: expression comp expression
+        {
+
+        }
+        ;
+
+relationParentheses: L_PAREN boolexpr R_PAREN
+        {
+
+        }
+        ;
+
+comp: EQ
+        {
+
+        }
+        | NEQ
+        {
+
+        }
+        | LT
+        {
+
+        }
+        | GT
+        {
+
+        }
+        | LTE
+        {
+
+        }
+        | GTE
+        {
+
+        }
+        ;
+
+expression: multiplicativeExpr PLUS expression
+        {
+
+        }
+        | multiplicativeExpr MINUS expression
+        {
+
+        }
+        | multiplicativeExpr
+        {
+
+        }
+        ;
+
+multiplicativeExpr: term MULT multiplicativeExpr
+        {
+
+        }
+        | term DIV multiplicativeExpr
+        {
+
+        }
+        | term MOD multiplicativeExpr
+        {
+
+        }
+        | term
+        {
+
+        }
+        ;
+
+term: UMINUS term1
+        {
+
+        }
+        | term1
+        {
+
+        }
+        | term2
+        {
+
+        }
+        ;
+
+term1:  var
+        {
+
+        }
+        | number
+        {
+
+        }
+        | L_PAREN expression R_PAREN
+        {
+
+        }
+        ;
+
+term2: identifier L_PAREN expressions R_PAREN
+        {
+
+        }
+        ;
+
+expressions: expression COMMA expressions
+        {
+
+        }
+        | expression
+        {
+
+        }
+        ;
+
+var: identifier
+        {
+
+        }
+        | identifier L_SQURE_BRACKET expression R_SQUARE_BRACKET
+        {
+
+        }
+        ;
+
+number: NUMBER
+        {
+
+        }
+        ;
+
+identifier: IDENTIFIER
+        {
+
+        }
+        ;
 
 
 %%
