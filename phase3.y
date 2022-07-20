@@ -194,23 +194,44 @@ stateDo: DO BEGINLOOP statements ENDLOOP WHILE boolexpr
 
 stateRead: READ vars
         {
-
+        std::string temp;
+        std::string dst = new_temp();
+        temp.append($2.code);
+        temp += ".< " + dst + "\n";
+        $$.code = strdup(temp.c_str());
+        $$.place = strdup(dst.c_str());
         }
         ;
 
 vars: var COMMA vars
         {
-
+        std::string temp;
+        std::string dst = new_temp();
+        temp.append($1.code);
+        temp.append($3.code);
+        temp += ". " + dst + "\n";
+        temp.append($1.place);
+        temp += ", ";
+        temp.append($3.place);
+        temp += "\n";
+        $$.code = strdup(temp.c_str());
+        $$.place = strdup(dst.c_str());
         }
         | var
         {
-
+        $$.code = strdup($1.code);
+        $$.place = strdup($1.place);
         }
         ;
 
 stateWrite: WRITE vars
         {
-
+        std::string temp;
+        std::string dst = new_temp();
+        temp.append($2.code);
+        temp += ".> " + dst + "\n";
+        $$.code = strdup(temp.c_str());
+        $$.place = strdup(dst.c_str());
         }
         ;
 
@@ -222,17 +243,35 @@ stateContinue: CONTINUE
 
 stateReturn: RETURN expression
         {
-
+        std::string temp;
+        std::string src = new_temp();
+        temp.append($2.code);
+        temp += "ret " + dst + "\n";
+        $$.code = strdup(temp.c_str());
+        $$.place = strdup(dst.c_str());
         }
         ;
 
 boolexpr: boolexpr OR relationAndExpr
         {
+        std::string temp;
+        std::string dst = new_temp();
+        temp.append($1.code);
+        temp.append($2.code);
+        temp += ". " + dst + "\n";
+        temp += "|| " + dst + ", ";
+        temp.append($1.palce);
+        temp.append(", ");
+        temp.append($3.place);
+        temp.append("\n");
+        $$.code = strdup(temp.c_str());
+        $$.place = strdup(dst.c_str());
 
         }
         | relationAndExpr
         {
-
+        $$.code = strdup($1.code);
+        $$.place = strdup($1.place);
         }
         ;
 
@@ -248,12 +287,13 @@ relationAndExpr: relationExpr AND relationAndExpr
         temp.append(", ");
         temp.append($3.place);
         temp.append("\n");
-        $$.code strdup(temp.c_str());
+        $$.code=strdup(temp.c_str());
         $$.place=strdup(dst.c_str());
         }
         | relationExpr
         {
-
+        $$.code = strdup($1.code);
+        $$.place = strdup($1.place);
         }
         ;
 
@@ -272,19 +312,14 @@ relationExpr: NOT relationExpr2
         | relationExpr2
         {
         $$.code=strdup($1.code);
-        $$.place strdup($1.place);   
+        $$.place= strdup($1.place);
         }
         ;
 
 relationExpr2: relationExpression
         {
-        std :: string dst new_temp();
-        std :: string temp;
-        temp.append($1.code);
-        temp.append($3.code);
-        temp=temp"."+dst+"\n"+$2.place+dst+", " + $1.place + ", " + $3.place
-        $$.code strdup(temp.c_str());
-        $$.place=strdup(dst.c_str());
+        $$.code = strdup($1.code)
+        $$.place = strdup($1.place);
         }
         | TRUETOKEN
         {
@@ -302,20 +337,35 @@ relationExpr2: relationExpression
         }
         | relationParentheses
         {
-        $$.code=strdup($2.code);
-        $$.place=strdup($2.place);
+        $$.code=strdup($1.code);
+        $$.place=strdup($1.place);
         }
         ;
 
 relationExpression: expression comp expression
         {
-
+        std::string temp;
+        std::string dst = new_temp();
+        temp.append($1.code);
+        temp.append($3.code);
+        temp.append(". ");
+        temp.append(dst);
+        temp.append("\n");
+        temp.append($2.place); //idk if this is right
+        temp += dst + ", ";
+        temp.append($1.place);
+        temp +=", ";
+        temp.append($3.place);
+        temp += "\n";
+        $$.code = strdup(temp.c_str());
+        $$.place = strdup(dst.c_str());
         }
         ;
 
 relationParentheses: L_PAREN boolexpr R_PAREN
         {
-
+        $$.code = strdup($2.code);
+        $$.place = strdup($2.place);
         }
         ;
 
@@ -368,7 +418,7 @@ expression: multiplicativeExpr PLUS expression
         }
         | multiplicativeExpr MINUS expression
         {
-        
+
         std :: string temp;
         std :: string dst=new_temp();
         temp.append($1.code);
@@ -385,13 +435,13 @@ expression: multiplicativeExpr PLUS expression
         | multiplicativeExpr
         {
         $$.code=strdup($1.code);
-        $$.place strdup($1.place);       
+        $$.place strdup($1.place);
         }
         ;
 
 multiplicativeExpr: term MULT multiplicativeExpr
         {
-         std::string temp
+         std::string temp;
          std::string dst = new_temp();
          temp.append($1.code);
          temp.append($3.code);
@@ -404,20 +454,55 @@ multiplicativeExpr: term MULT multiplicativeExpr
          temp.append($3.place);
          temp += "\n";
          $$.code=strdup(temp.c_str());
-         $$.place=strdup(dst.c_str());       
+         $$.place=strdup(dst.c_str());
 
         }
         | term DIV multiplicativeExpr
         {
-
+        std::string temp;
+        std::string dst = new_temp();
+        temp.append($1.code);
+        temp.append($3.code);
+        temp.append(". ");
+        temp.append(dst);
+        temp.append("\n");
+        temp += "/ " + dst + ", ";
+        temp.append($1.place);
+        temp += ",";
+        temp.append($3.place);
+        temp += "\n";
+        $$.code=strdup(temp.c_str());
+        $$.place=strdup(dst.c_str());
         }
         | term MOD multiplicativeExpr
         {
-
+        std::string temp;
+        std::string dst = new_temp();
+        temp.append($1.code);
+        temp.append($3.code);
+        temp.append(". ");
+        temp.append(dst);
+        temp.append("\n");
+        temp += "% " + dst + ", ";
+        temp.append($1.place);
+        temp += ",";
+        temp.append($3.place);
+        temp += "\n";
+        $$.code=strdup(temp.c_str());
+        $$.place=strdup(dst.c_str());
         }
         | term
         {
-
+        std::string temp;
+        std::string dst = new_temp();
+        temp.append($1.code);
+        temp.append(". ");
+        temp.append(dst);
+        temp.append("\n");
+        temp.append($1.place);
+        temp += "\n";
+        $$.code = strdup(temp.c_str());
+        $$.place=strdup(dst.c_str());
         }
         ;
 
@@ -427,30 +512,37 @@ term: UMINUS term1
         }
         | term1
         {
-
+        $$.code = strdup($1.code);
+        $$.place = strdup($1.place);
         }
         | term2
         {
-
+        $$.code = strdup($1.code);
+        $$.place = strdup($1.place);
         }
         ;
 
 term1:  var
         {
-
+        $$.code = strdup($1.code);
+        $$.place = strdup($1.place);
         }
         | number
         {
-
+        $$.code = strdup($1.code);
+        $$.place = strdup($1.place);
         }
         | L_PAREN expression R_PAREN
         {
-
+        $$.code = strdup($2.code);
+        $$.place = strdup($2.place);
         }
         ;
 
 term2: identifier L_PAREN expressions R_PAREN
         {
+        std::string temp;
+        std::string identifier = $1.place;
 
         }
         ;
@@ -463,7 +555,7 @@ expressions: expression COMMA expressions
         temp.append($1.place);
         temp.append("\n");
         temp.append($3.code);
-        $$.code=strdup(temp.c_str());$$.code
+        $$.code=strdup(temp.c_str());
         $$.place=strdup("");
         }
         | expression
@@ -480,23 +572,46 @@ expressions: expression COMMA expressions
 
 var: identifier
         {
-
+        std::string temp;
+        std::string identifier = $1.place;
+        if (funcs.find(identifier) == funcs.end() && varTemp.find(identifier) == varTemp.end()) {
+                printf("Identifier %s is not declared.\n", identifier.c_str());
+        } else if (arrSize[ident] == 1) {
+                printf("Provided index for non-array Identifier %s.\n", identifier.c_str());
         }
-        | identifier L_SQURE_BRACKET expression R_SQUARE_BRACKET
+        $$.code = strdup("");
+        $$.place = strdup(identifier.c_str());
+        $$.arr = false;
+        }
+        | identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET
         {
-
+        std::string temp;
+        std::string identifier = $1.place;
+        if (funcs.find(identifier) == funcs.end() && varTemp.find(identifier) == varTemp.end()) {
+                printf("Identifier %s is not declared.\n", identifier.c_str());
+        } else if (arrSize[identifier] == 1) {
+                printf("Provided index for non-array Identifier %s.\n", identifier.c_str());
+        }
+        temp.append($1.place);
+        temp.append(", ");
+        temp.append($3.place);
+        $$.code = strdup($3.code)
+        $$.place = strdup(temp.c_str());
+        $$.arr = true;
         }
         ;
 
 number: NUMBER
         {
-
+        $$.place = $1.place;
+        $$.code = ("");
         }
         ;
 
 identifier: IDENTIFIER
         {
-
+        $$.place = $1.place;
+        $$.code = ("");
         }
         ;
 
@@ -527,3 +642,4 @@ std::string new_label() {
    labelCount++;
    return l;
 }
+                             
