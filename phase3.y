@@ -74,7 +74,9 @@ std::string new_label();
   /* write your rules here */
 prog_start: functions
         {
-
+        if (!mainFunc) {
+                printf("No main function detected!\n");
+        }
         }
         ;
 
@@ -90,6 +92,25 @@ functions:
 
 function: FUNCTION identifier SEMICOLON BEGINPARAMS declarations ENDPARAMS BEGINLOCALS declarations ENDLOCALS BEGINBODY statements ENDBODY
         {
+        std::string temp = "func ";
+        temp.append($2.place);
+        temp.append("\n");
+        std::string s = $2.place;
+        if (s == "main") {
+                mainFunc = true;
+        }
+        temp.append($5.code);
+        std::string decs = $5.code;
+        int decNum = 0;
+        while (decs.find(".") != std::string::npos) {
+                int pos = decs.find(".");
+                decs.replace(pos, 1, "=");
+                std::string part = ", $" + std::to_string(decNum) + "\n";
+                decNum++;
+                decs.replace(decs.find("\n",pos),1,part);
+        }
+        temp.append(decs);
+
 
         }
         ;
@@ -102,7 +123,9 @@ declaration: identifiers COLON declaration2
 
 declaration2: ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER
         {
-
+        std::string temp;
+        std::string number = $3.place;
+        temp += ".[] " +
         }
         | ENUM L_PAREN identifiers R_PAREN
         {
@@ -116,45 +139,64 @@ declaration2: ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER
 
 identifiers: identifier COMMA identifiers
         {
-
+        std::string temp;
+        std::string dst = new_temp();
+        temp.append($1.code);
+        temp.append($3.code);
+        temp += ". " + dst + "\n";
+        temp.append($1.place);
+        temp += ", ";
+        temp.append($3.place);
+        temp += "\n";
+        $$.code = strdup(temp.c_str());
+        $$.place = strdup(dst.c_str());
         }
         | identifier
         {
-
+        $$.code = strdup($1.code);
+        $$.place = strdup($1.place);
         }
         ;
 
 statement: stateVar
         {
-
+        $$.code = strdup($1.code);
+        $$.place = strdup($1.place);
         }
         | stateIf
         {
-
+        $$.code = strdup($1.code);
+        $$.place = strdup($1.place);
         }
         | stateWhile
         {
-
+        $$.code = strdup($1.code);
+        $$.place = strdup($1.place);
         }
         | stateDo
         {
-
+        $$.code = strdup($1.code);
+        $$.place = strdup($1.place);
         }
         | stateRead
         {
-
+        $$.code = strdup($1.code);
+        $$.place = strdup($1.place);
         }
         | stateWrite
         {
-
+        $$.code = strdup($1.code);
+        $$.place = strdup($1.place);
         }
         | stateContinue
         {
-
+        $$.code = strdup($1.code);
+        $$.place = strdup($1.place);
         }
         | stateReturn
         {
-
+        $$.code = strdup($1.code);
+        $$.place = strdup($1.place);
         }
         ;
 
@@ -229,6 +271,7 @@ stateWrite: WRITE vars
         std::string temp;
         std::string dst = new_temp();
         temp.append($2.code);
+        temp += ". " + dst + "\n";
         temp += ".> " + dst + "\n";
         $$.code = strdup(temp.c_str());
         $$.place = strdup(dst.c_str());
@@ -244,7 +287,7 @@ stateContinue: CONTINUE
 stateReturn: RETURN expression
         {
         std::string temp;
-        std::string src = new_temp();
+        std::string dst = new_temp();
         temp.append($2.code);
         temp += "ret " + dst + "\n";
         $$.code = strdup(temp.c_str());
@@ -260,7 +303,7 @@ boolexpr: boolexpr OR relationAndExpr
         temp.append($2.code);
         temp += ". " + dst + "\n";
         temp += "|| " + dst + ", ";
-        temp.append($1.palce);
+        temp.append($1.place);
         temp.append(", ");
         temp.append($3.place);
         temp.append("\n");
@@ -541,8 +584,6 @@ term1:  var
 
 term2: identifier L_PAREN expressions R_PAREN
         {
-        std::string temp;
-        std::string identifier = $1.place;
 
         }
         ;
@@ -642,4 +683,3 @@ std::string new_label() {
    labelCount++;
    return l;
 }
-                             
