@@ -78,19 +78,13 @@ prog_start: functions
                 printf("No main function detected!\n");
         }
         }
-        ;
-
-functions:
-        {
-
-        }
-        | function functions
+        | function prog_start
         {
 
         }
         ;
 
-function: FUNCTION identifier SEMICOLON BEGINPARAMS declarations ENDPARAMS BEGINLOCALS declarations ENDLOCALS BEGINBODY statements ENDBODY
+function: FUNCTION funcidentifier SEMICOLON BEGINPARAMS declarations ENDPARAMS BEGINLOCALS declarations ENDLOCALS BEGINBODY statements ENDBODY
         {
         std::string temp = "func ";
         temp.append($2.place);
@@ -110,51 +104,143 @@ function: FUNCTION identifier SEMICOLON BEGINPARAMS declarations ENDPARAMS BEGIN
                 decs.replace(decs.find("\n",pos),1,part);
         }
         temp.append(decs);
-
-
+        temp.append($8.code);
+        std::string statements = $11.code;
+        if (statements.find("continue") != std:;string::npos) {
+                printf("ERROR: Continue outside loop in function %s\n", $2.place);
+        }
+        temp.append(statements);
+        temp.append("endfunc\n\n");
+        printf(temp.c_str());
         }
         ;
 
-declaration: identifiers COLON declaration2
-        {
-
-        }
-        ;
-
-declaration2: ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER
+declarations: declaration SEMICOLON declarations
         {
         std::string temp;
-        std::string number = $3.place;
-        temp += ".[] " +
-        }
-        | ENUM L_PAREN identifiers R_PAREN
-        {
-
-        }
-        | INTEGER
-        {
-
-        }
-        ;
-
-identifiers: identifier COMMA identifiers
-        {
-        std::string temp;
-        std::string dst = new_temp();
         temp.append($1.code);
         temp.append($3.code);
-        temp += ". " + dst + "\n";
-        temp.append($1.place);
-        temp += ", ";
-        temp.append($3.place);
-        temp += "\n";
         $$.code = strdup(temp.c_str());
-        $$.place = strdup(dst.c_str());
+        $$.place = strdup("");
+        }
+        |
+        {
+        $$.place = strdup("");
+        $$.code = strdup("");
+        }
+        ;
+
+declaration: identifiers COLON INTEGER
+        {
+        int left = 0;
+        int right = 0;
+        std::string parse($1.place);
+        std::string temp;
+        bool ex = false;
+        while (!ex) {
+                right = parse.find("|",left);
+                temp.append(". ");
+                if (right == std::string::npos) {
+                        std::string ident = parse.substr(left, right);
+                        if (reserved.find(ident) != reserved.end()) {
+                                printf("Identifier %s's name is a reserved word.\n", ident.c_str());
+                        }
+                        if (funcs.find(ident) != funcs.end() || varTemp.find(ident) != varTemp.end()) {
+                                printf("Identifier %s is previously declared.\n", ident.c_str());
+                        } else {
+                                varTemp[ident] = ident;
+                                arrSize[ident] = 1;
+                        }
+                        temp.append(ident);
+                        ex = true;
+                } else {
+                        std::string ident = parse.substr(left, right-left);
+                        if (reserved.find(ident != reserved.end())) {
+                                printf("Identifier %s's name is a reserved word.\n", ident.c_str());
+                        }
+                        if (funcs.find(ident) != funcs.end() || varTemp.find(ident) != varTemp.end()) {
+                                printf("Identifier %s is previously declared.\n", ident.c_str());
+                        } else {
+                                varTemp[ident] = ident;
+                                arrSize[ident] = 1;
+                        }
+                        temp.append(ident);
+                        ex = true;
+                }
+                left = right;
+        }
+        $$.place = strdup(parse.c_str());
+        $$.code = strdup(temp.c_str());
+        }
+        | identifiers COLON ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER
+        {
+        int left = 0;
+        int right = 0;
+        std::string parse($1.place);
+        std::string temp;
+        bool ex = false;
+        while (!ex) {
+                right = parse.find("|",left);
+                temp.append(".[] ");
+                if (right == std::string::npos) {
+                        std::string ident = parse.substr(left, right);
+                        if (reserved.find(ident) != reserved.end()) {
+                                printf("Identifier %s's name is a reserved word.\n", ident.c_str());
+                        }
+                        if (funcs.find(ident) != funcs.end() || varTemp.find(ident) != varTemp.end()) {
+                                printf("Identifier %s is previously declared.\n", ident.c_str());
+                        } else {
+                                varTemp[ident] = ident;
+                                arrSize[ident] = $5.place;
+                        }
+                        temp.append(ident);
+                        ex = true;
+                } else {
+                        std::string ident = parse.substr(left, right-left);
+                        if (reserved.find(ident != reserved.end())) {
+                                printf("Identifier %s's name is a reserved word.\n", ident.c_str());
+                        }
+                        if (funcs.find(ident) != funcs.end() || varTemp.find(ident) != varTemp.end()) {
+                                printf("Identifier %s is previously declared.\n", ident.c_str());
+                        } else {
+                                varTemp[ident] = ident;
+                                arrSize[ident] = $5.place;
+                        }
+                        temp.append(ident);
+                        ex = true;
+                }
+                left = right;
+        }
+        $$.place = strdup(parse.c_str());
+        $$.code = strdup(temp.c_str());
+        }
+        ;
+
+identifiers: identifier COMMA  identifiers
+        {
+        std::string temp;
+        temp.append($1.place);
+        temp.append("|");
+        temp.append($3.place);
+        $$.place = strdup(temp.c_str());
+        $$.code = strdup("");
         }
         | identifier
         {
-        $$.code = strdup($1.code);
+        $$.code = strdup("");
         $$.place = strdup($1.place);
+        }
+        ;
+
+funcidentifier: IDENTIFIER
+        {
+                if (funcs.find($1) != funcs.end()) {
+                        printf("function name %s already declared.\n", $1);
+                } else {
+                        funcs.insert($1);
+                }
+        $$.place = strdup($1);
+        $$.code = strdup("");
         }
         ;
 
@@ -237,50 +323,63 @@ stateDo: DO BEGINLOOP statements ENDLOOP WHILE boolexpr
 stateRead: READ vars
         {
         std::string temp;
-        std::string dst = new_temp();
         temp.append($2.code);
-        temp += ".< " + dst + "\n";
+        size_t pos = temp.find("|", 0);
+        while (pos != std:;string::npos) {
+                temp.replace(pos, 1, "<");
+                pos = temp.find("|", pos);
+        }
         $$.code = strdup(temp.c_str());
-        $$.place = strdup(dst.c_str());
         }
         ;
 
-vars: var COMMA vars
+vars: var  vars
         {
         std::string temp;
-        std::string dst = new_temp();
         temp.append($1.code);
-        temp.append($3.code);
-        temp += ". " + dst + "\n";
+        if ($1.arr) {
+                temp.append(".[]| ");
+        } else {
+                temp.append(". | ");
+        }
         temp.append($1.place);
-        temp += ", ";
-        temp.append($3.place);
-        temp += "\n";
+        temp.append("\n");
+        temp.append($3.code);
         $$.code = strdup(temp.c_str());
-        $$.place = strdup(dst.c_str());
+        $$.place = strdup("");
         }
         | var
         {
-        $$.code = strdup($1.code);
-        $$.place = strdup($1.place);
+        std::string temp;
+        temp.append($1.code);
+        if ($1.arr) {
+                temp.append(".[]| ");
+        } else {
+                temp.append(". | ");
+        }
+        temp.append($1.place);
+        temp.append("\n");
+        $$.code = strdup(temp.c_str());
+        $$.place = strdup("");
         }
         ;
 
 stateWrite: WRITE vars
         {
         std::string temp;
-        std::string dst = new_temp();
         temp.append($2.code);
-        temp += ". " + dst + "\n";
-        temp += ".> " + dst + "\n";
+        size_t pos = temp.find("|", 0);
+        while (pos != std::string::npos) {
+                temp.replace(pos,1,">");
+                pos = temp.find("|", pos);
+        }
         $$.code = strdup(temp.c_str());
-        $$.place = strdup(dst.c_str());
         }
         ;
 
 stateContinue: CONTINUE
         {
-
+        $$.code = strdup("continue\n");
         }
         ;
 
@@ -290,8 +389,9 @@ stateReturn: RETURN expression
         std::string dst = new_temp();
         temp.append($2.code);
         temp += "ret " + dst + "\n";
+        temp.append($2.place);
+        temp.append("\n");
         $$.code = strdup(temp.c_str());
-        $$.place = strdup(dst.c_str());
         }
         ;
 
@@ -385,7 +485,7 @@ relationExpr2: relationExpression
         }
         ;
 
-relationExpression: expression comp expression
+relationExpression: expression  expression
         {
         std::string temp;
         std::string dst = new_temp();
@@ -588,7 +688,7 @@ term2: identifier L_PAREN expressions R_PAREN
         }
         ;
 
-expressions: expression COMMA expressions
+expressions: expression COMMA  expressions
         {
         std::string temp;
         temp.append($1.code);
@@ -639,6 +739,19 @@ var: identifier
         $$.code = strdup($3.code)
         $$.place = strdup(temp.c_str());
         $$.arr = true;
+        }
+        ;
+
+statements: statement SEMICOLON statements
+        {
+        std::string temp;
+        temp.append($1.code);
+        temp.append($3.code);
+        $$.code = strdup(temp.c_str());
+        }
+        | statement SEMICOLON
+        {
+        $$.code = strdup($1.code);
         }
         ;
 
