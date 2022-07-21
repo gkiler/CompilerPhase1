@@ -288,19 +288,104 @@ statement: stateVar
 
 stateVar: var ASSIGN expression
         {
+                std::string temp;
+            temp.append($1.code);
+            temp.append($3.code);
+            std::string intermediate = $3.place;
+
+            //check arary
+            if ($1.arr && $3.arr) {
+                  intermediate = new_temp();
+                  temp.append(". ");
+                  temp.append(intermediate);
+                  temp.append("\n");
+                  temp.append("=[] ");
+                  temp.append(intermediate);
+                  temp.append(", ");
+                  temp.append($3.place);
+                  temp.append("\n");
+                  temp.append("[]= ");
+            }
+            else if ($1.arr) {
+                  temp.append("[]= ");
+            }
+            else if ($3.arr) {
+                  temp.append("=[] ");
+            }
+            else {
+                  temp.append("= ");
+            }
+            temp.append($1.place);
+            temp.append(", ");
+            temp.append(intermediate);
+            temp.append("\n");
+
+            $$.code = strdup(temp.c_str());
 
         }
         ;
 
 stateIf: IF boolexpr THEN statements stateElse ENDIF
         {
+        std::string then_ = new_label();
+        std::string end_ = new_label();
+        std::string temp;
 
+        // if 
+        temp.append($2.code);
+        temp.append("?:= ");
+        temp.appen(then_);
+        temp.appen(", ");
+        temp.appen($2.place);
+        temp.appen("\n");
+        //else
+        temp.appen($6.code);
+        temp.appen(":= ");
+        temp.appen(end_);
+        temp.appen("\n");
+        //then
+        temp.appen(": ");
+        temp.appen(then_);
+        temp.appen("\n");
+        temp.appen($4.code);
+        //end
+        temp.appen(": ");
+        temp.appen(end_);
+        temp.appen("\n");
+
+        $$.code = strdup(temp.c_str());
         }
         ;
 
 stateElse: ELSE statements
         {
+        std::string then_ = new_label(); 
+            std::string end_ = new_label();
+            std::string temp; 
 
+            temp.append($2.code);
+            // if true
+            temp.append("?:= ");
+            temp.append(then_);
+            temp.append(", ");
+            temp.append($2.place);
+            temp.append("\n");
+            // else code
+            temp.append($6.code);
+            temp.append(":= ");
+            temp.append(end_);
+            temp.append("\n");
+            // then_ label
+            temp.append(": ");
+            temp.append(then_);
+            temp.append("\n");
+            temp.append($4.code);
+            // end_ label
+            temp.append(": ");
+            temp.append(end_);
+            temp.append("\n");
+            
+            $$.code = strdup(temp.c_str());
         }
         |
         {
@@ -310,13 +395,80 @@ stateElse: ELSE statements
 
 stateWhile: WHILE boolexpr BEGINLOOP statements ENDLOOP
         {
+        std::string temp;
+            std::string beginWhile = new_label();
+            std::string beginLoop = new_label();
+            std::string endLoop = new_label();
 
+            std::string state = $4.code;
+            std::string jump;
+            jump.append(":= ");
+            jump.append(beginWhile);
+            while (state.find("continue") != std::string::npos) {
+                  state.replace(state.find("continue"), 8, jump);
+            }
+
+            //start the expression
+            //print the while label
+            temp.append(": ");
+            temp.append(beginWhile);
+            temp.append("\n");
+
+            //write the bool expression
+            //print the loop label
+            temp.append($2.code);
+            temp.append("?:= ");
+            temp.append(beginLoop);
+            temp.append(", ");
+            temp.append($2.place);
+            temp.append("\n");
+            temp.append(":= ");
+            temp.append(endLoop);
+            temp.append("\n");
+            temp.append(": ");
+            temp.append(beginLoop);
+            temp.append("\n");
+            temp.append(state);
+            temp.append(":= ");
+            temp.append(beginWhile);
+            temp.append("\n");
+            temp.append(": ");
+            temp.append(endLoop);
+            temp.append("\n");
+
+            $$.code = strdup(temp.c_str());
         }
         ;
 
 stateDo: DO BEGINLOOP statements ENDLOOP WHILE boolexpr
         {
+        std::string temp;
+            std::string beginLoop = new_label();
+            std::string beginWhile = new_label();
+            std::string state = $3.code;
+            std::string jump;
+            jump.append(":= ");
+            jump.append(beginWhile);
+            
+            while (state.find("continue") != std::string::npos) {
+                  state.replace(state.find("continue"), 8, jump);
+            }
 
+            temp.append(": ");
+            temp.append(beginLoop);
+            temp.append("\n");
+            temp.append(state);
+            temp.append(": ");
+            temp.append(beginWhile);
+            temp.append("\n");
+            temp.append($6.code);
+            temp.append("?:= ");
+            temp.append(beginLoop);
+            temp.append(", ");
+            temp.append($6.place);
+            temp.append("\n");
+
+            $$.code = strdup(temp.c_str());
         }
         ;
 
@@ -684,7 +836,15 @@ term1:  var
 
 term2: identifier L_PAREN expressions R_PAREN
         {
-
+        std::string temp; 
+            temp.append($3.code);
+            temp.append("* ");
+            temp.append($3.place);
+            temp.append(", ");
+            temp.append($3.place);
+            temp.append(", -1\n");
+            $$.code = strdup(temp.c_str());
+            $$.place = strdup($3.place);
         }
         ;
 
